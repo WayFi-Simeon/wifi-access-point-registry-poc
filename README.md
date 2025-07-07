@@ -2,10 +2,10 @@
 
 A comprehensive web application for registering and managing WiFi access points with intelligent location mapping and automatic 802.11u classification.
 
-<img width="899" alt="image" src="https://github.com/user-attachments/assets/d7438e07-bbf4-4c93-9fc7-997c14ec13db" />
-<img width="858" alt="image" src="https://github.com/user-attachments/assets/1d2eb8f3-bd8d-4743-a62e-59a91b93d980" />
-<img width="871" alt="image" src="https://github.com/user-attachments/assets/4d3a35f0-0c3e-4db7-80a1-87b3fd01bc36" />
-<img width="899" alt="image" src="https://github.com/user-attachments/assets/9f007174-cae2-40f7-9f82-dcbdb2cc8086" />
+<img width="899" height="20%" alt="image" src="https://github.com/user-attachments/assets/d7438e07-bbf4-4c93-9fc7-997c14ec13db" />
+<img width="858" height="20%" alt="image" src="https://github.com/user-attachments/assets/1d2eb8f3-bd8d-4743-a62e-59a91b93d980" />
+<img width="871" height="20%" alt="image" src="https://github.com/user-attachments/assets/4d3a35f0-0c3e-4db7-80a1-87b3fd01bc36" />
+<img width="899" height="20%" alt="image" src="https://github.com/user-attachments/assets/9f007174-cae2-40f7-9f82-dcbdb2cc8086" />
 
 
 ## 🌟 Features
