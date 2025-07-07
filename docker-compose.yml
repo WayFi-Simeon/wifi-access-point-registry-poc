@@ -1,0 +1,71 @@
+services:
+  wifi-registry:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_TYPE=sqlite
+      - SQLITE_DB_PATH=./database/registry.db
+      - PORT=3000
+      - NOMINATIM_BASE_URL=https://nominatim.openstreetmap.org
+      - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    volumes:
+      - wifi_data:/app/database
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL service for production use
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-wifi_registry}
+      - POSTGRES_USER=${POSTGRES_USER:-wifi_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_in_production}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    profiles:
+      - postgres
+
+  # WiFi Registry with PostgreSQL
+  wifi-registry-postgres:
+    build: .
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_TYPE=postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-wifi_registry}
+      - POSTGRES_USER=${POSTGRES_USER:-wifi_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_in_production}
+      - PORT=3000
+      - NOMINATIM_BASE_URL=https://nominatim.openstreetmap.org
+      - ALLOWED_ORIGINS=http://localhost:3001,http://127.0.0.1:3001
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    profiles:
+      - postgres
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  wifi_data:
+    driver: local
+  postgres_data:
+    driver: local

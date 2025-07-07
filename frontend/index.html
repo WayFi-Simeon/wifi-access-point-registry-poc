@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Access Point Registry</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>WiFi Access Point Registry</h1>
+            <p>Register and manage WiFi access points with location mapping</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-button active" onclick="showTab('register')">Register Access Point</button>
+            <button class="tab-button" onclick="showTab('list')">View Access Points</button>
+        </nav>
+
+        <!-- Registration Form Tab -->
+        <div id="register-tab" class="tab-content active">
+            <div class="form-container">
+                <h2>Register New Access Point</h2>
+                <form id="access-point-form">
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h3>Basic Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nasid">NASID *</label>
+                                <input type="text" id="nasid" name="nasid" required 
+                                       placeholder="e.g., 00:25:9c:cf:1c:ac">
+                                <small>Network Access Server Identifier (MAC address format)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="location_name">Location Name *</label>
+                                <input type="text" id="location_name" name="location_name" required 
+                                       placeholder="e.g., Central Park Wi-Fi Zone">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ssid">SSID *</label>
+                            <input type="text" id="ssid" name="ssid" required 
+                                   placeholder="e.g., CentralParkFreeWiFi">
+                        </div>
+                        <div class="form-group">
+                            <label for="bssid">BSSID</label>
+                            <input type="text" id="bssid" name="bssid" 
+                                   placeholder="e.g., 00:25:9c:cf:1c:ac">
+                            <small>Basic Service Set Identifier (optional)</small>
+                        </div>
+                    </div>
+
+                    <!-- Location Information -->
+                    <div class="form-section">
+                        <h3>Location Information</h3>
+                        <div class="form-group">
+                            <label for="address-search">Search Address *</label>
+                            <div class="address-search-container">
+                                <input type="text" id="address-search" 
+                                       placeholder="Start typing an address...">
+                                <button type="button" id="search-btn">Search</button>
+                            </div>
+                            <div id="address-suggestions" class="suggestions-dropdown"></div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="street_address">Street Address *</label>
+                                <input type="text" id="street_address" name="street_address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="city">City *</label>
+                                <input type="text" id="city" name="city" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="state">State/Province</label>
+                                <input type="text" id="state" name="state">
+                            </div>
+                            <div class="form-group">
+                                <label for="zip_code">ZIP/Postal Code *</label>
+                                <input type="text" id="zip_code" name="zip_code" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="country">Country *</label>
+                            <input type="text" id="country" name="country" required>
+                        </div>
+
+                        <!-- Map for location selection -->
+                        <div class="form-group">
+                            <label>Location Map - Drop a pin for precise coordinates</label>
+                            <div id="map" style="height: 400px; width: 100%; border: 1px solid #ddd; border-radius: 4px;"></div>
+                            <small class="help-text">Click on the map to set the exact location</small>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="latitude">Latitude * <span class="auto-detected">(Auto-set from map)</span></label>
+                                <input type="number" id="latitude" name="latitude" step="0.00000001" readonly required>
+                            </div>
+                            <div class="form-group">
+                                <label for="longitude">Longitude * <span class="auto-detected">(Auto-set from map)</span></label>
+                                <input type="number" id="longitude" name="longitude" step="0.00000001" readonly required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="wifi-group">802.11u Group* <span class="auto-detected">(Auto-detected)</span></label>
+                                <input type="text" id="wifi-group" name="wifi_group" readonly required>
+                                <small class="help-text">Automatically determined from location type</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="wifi-type">802.11u Type Categorization* <span class="auto-detected">(Auto-detected)</span></label>
+                                <input type="text" id="wifi-type" name="wifi_type_categorization" readonly required>
+                                <small class="help-text">Automatically determined from location type</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="form-section">
+                        <h3>Additional Information</h3>
+                        <div class="form-group">
+                            <label for="venue_type">Venue Type</label>
+                            <input type="text" id="venue_type" name="venue_type" 
+                                   placeholder="e.g., Outdoor, Indoor">
+                        </div>
+                        <div class="form-group">
+                            <label for="venue_name_alt">Alternative Venue Name</label>
+                            <input type="text" id="venue_name_alt" name="venue_name_alt" 
+                                   placeholder="Alternative or common name">
+                        </div>
+                    </div>
+
+                    <!-- Hardware Information -->
+                    <div class="form-section">
+                        <h3>Hardware Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ap_make">Access Point Make *</label>
+                                <input type="text" id="ap_make" name="ap_make" required 
+                                       placeholder="e.g., Cisco, Aruba, Ubiquiti">
+                            </div>
+                            <div class="form-group">
+                                <label for="ap_model">Access Point Model *</label>
+                                <input type="text" id="ap_model" name="ap_model" required 
+                                       placeholder="e.g., Aironet 2800, AP-515">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Network Information -->
+                    <div class="form-section">
+                        <h3>Network Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="estimated_upload_speed">Upload Speed (Mbps) *</label>
+                                <input type="number" id="estimated_upload_speed" name="estimated_upload_speed" 
+                                       required min="1" max="10000">
+                            </div>
+                            <div class="form-group">
+                                <label for="estimated_download_speed">Download Speed (Mbps) *</label>
+                                <input type="number" id="estimated_download_speed" name="estimated_download_speed" 
+                                       required min="1" max="10000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="isp">Internet Service Provider *</label>
+                            <input type="text" id="isp" name="isp" required 
+                                   placeholder="e.g., Spectrum, Xfinity, BT">
+                        </div>
+                        <div class="form-group">
+                            <label for="foot_traffic_estimates">Foot Traffic Estimates *</label>
+                            <select id="foot_traffic_estimates" name="foot_traffic_estimates" required>
+                                <option value="">Select Traffic Level</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                            <small>Required for earnings estimates</small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Register Access Point</button>
+                        <button type="reset" class="btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Access Points List Tab -->
+        <div id="list-tab" class="tab-content">
+            <div class="list-container">
+                <h2>Registered Access Points</h2>
+                <div class="list-controls">
+                    <input type="text" id="search-input" placeholder="Search access points...">
+                    <select id="filter-group">
+                        <option value="">All Groups</option>
+                        <option value="OUTDOOR">OUTDOOR</option>
+                        <option value="MERCANTILE">MERCANTILE</option>
+                        <option value="HOSPITALITY">HOSPITALITY</option>
+                        <option value="EDUCATIONAL">EDUCATIONAL</option>
+                        <option value="HEALTHCARE">HEALTHCARE</option>
+                        <option value="TRANSPORTATION">TRANSPORTATION</option>
+                        <option value="GOVERNMENT">GOVERNMENT</option>
+                        <option value="RESIDENTIAL">RESIDENTIAL</option>
+                        <option value="INDUSTRIAL">INDUSTRIAL</option>
+                        <option value="ENTERTAINMENT">ENTERTAINMENT</option>
+                        <option value="RELIGIOUS">RELIGIOUS</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
+                    <button id="refresh-list" class="btn-secondary">Refresh</button>
+                </div>
+                <div id="access-points-list" class="access-points-grid"></div>
+                <div id="pagination" class="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
